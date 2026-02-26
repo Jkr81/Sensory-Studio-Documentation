@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sensory Studio — XR Museum Experience</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060810;
+    --surface: #0d1120;
+    --glow: #7eb8f7;
+    --accent: #c4a4ff;
+    --warm: #f5c97a;
+    --text: #d4dff7;
+    --muted: #6a7a9b;
+    --border: rgba(126,184,247,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .orb {
+    position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(126,184,247,0.08), transparent 70%); top: -150px; left: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(196,164,255,0.07), transparent 70%); bottom: 10%; right: -80px; animation-delay: -9s; }
+  .orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(245,201,122,0.05), transparent 70%); top: 50%; left: 50%; animation-delay: -4s; }
+
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(40px, 30px) scale(1.1); }
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 32px; }
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(6,8,16,0.85); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 0;
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .nav-logo { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--glow); letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); text-decoration: none; text-transform: uppercase; letter-spacing: 0.1em; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--glow); }
+
+  .hero { padding: 120px 0 80px; position: relative; }
+  .hero-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--glow); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-label::before { content: ''; display: inline-block; width: 30px; height: 1px; background: var(--glow); }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 7vw, 82px);
+    font-weight: 300; line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 32px;
+  }
+  h1 em { color: var(--accent); font-style: italic; }
+  .hero-desc { font-size: 20px; font-weight: 300; color: var(--muted); max-width: 580px; margin-bottom: 48px; line-height: 1.8; }
+  .cta-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 14px 28px; border-radius: 2px; text-decoration: none;
+    transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--glow); color: var(--bg); }
+  .btn-primary:hover { background: #a8d4ff; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(126,184,247,0.25); }
+  .btn-secondary { border: 1px solid var(--border); color: var(--text); background: transparent; }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 80px 0; }
+
+  section { padding: 80px 0; }
+  .section-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 16px;
+  }
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(30px, 4vw, 48px); font-weight: 300;
+    color: #fff; margin-bottom: 24px; line-height: 1.1;
+  }
+  h3 {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px; font-weight: 700;
+    color: var(--glow); margin-bottom: 12px; letter-spacing: 0.05em;
+  }
+  p { color: var(--muted); margin-bottom: 16px; }
+  p strong { color: var(--text); }
+
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 40px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; padding: 32px;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .card:hover { border-color: rgba(126,184,247,0.3); transform: translateY(-4px); }
+  .card-icon { font-size: 28px; margin-bottom: 16px; }
+
+  .station-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px; margin: 32px 0;
+  }
+  .station-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; padding: 24px 20px;
+    transition: all 0.3s; cursor: default;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .station-card:hover { border-color: var(--accent); background: rgba(196,164,255,0.06); transform: translateY(-3px); }
+  .station-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.15em; }
+  .station-emoji { font-size: 26px; }
+  .station-name { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--text); font-weight: 700; letter-spacing: 0.05em; }
+  .station-sound { font-size: 14px; color: var(--muted); font-style: italic; }
+
+  .special-stations { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 32px 0; }
+  @media (max-width: 600px) { .special-stations { grid-template-columns: 1fr; } }
+  .special-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; padding: 28px;
+    transition: all 0.3s;
+  }
+  .special-card.sphere { border-color: rgba(245,201,122,0.2); }
+  .special-card.pool { border-color: rgba(126,184,247,0.2); }
+  .special-card:hover { transform: translateY(-3px); }
+  .special-card.sphere:hover { border-color: rgba(245,201,122,0.45); }
+  .special-card.pool:hover { border-color: rgba(126,184,247,0.45); }
+  .special-label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 8px; }
+  .special-card.sphere .special-label { color: var(--warm); }
+  .special-card.pool .special-label { color: var(--glow); }
+  .special-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #fff; margin-bottom: 10px; }
+  .special-desc { font-size: 15px; color: var(--muted); margin: 0; }
+
+  .interaction-table { width: 100%; border-collapse: collapse; margin: 32px 0; }
+  .interaction-table th {
+    font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--glow); text-align: left;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+  }
+  .interaction-table td {
+    padding: 14px 16px; border-bottom: 1px solid rgba(126,184,247,0.05);
+    font-size: 16px; color: var(--muted);
+  }
+  .interaction-table tr:hover td { background: rgba(126,184,247,0.03); color: var(--text); }
+
+  .version-block {
+    border: 1px solid var(--border); border-radius: 4px;
+    overflow: hidden; margin-bottom: 32px;
+    background: var(--surface);
+  }
+  .version-header {
+    background: rgba(126,184,247,0.05);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  .version-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; background: var(--glow); color: var(--bg);
+    padding: 4px 12px; border-radius: 2px; font-weight: 700; letter-spacing: 0.08em;
+  }
+  .version-title { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--text); }
+  .version-body { padding: 32px; }
+  .version-body h3 { color: var(--accent); }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+  .tag {
+    font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.08em;
+    padding: 5px 12px; border: 1px solid var(--border); border-radius: 2px;
+    color: var(--muted); text-transform: uppercase;
+  }
+
+  .tech-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .tech-pill {
+    font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+    padding: 8px 18px; border-radius: 100px;
+    border: 1px solid var(--border); color: var(--text); background: var(--surface);
+  }
+
+  /* Video */
+  .video-wrap {
+    margin: 32px 0; border-radius: 4px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .video-wrap video { width: 100%; display: block; }
+
+  /* Day/Night */
+  .daynight-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0 0; }
+  @media (max-width: 600px) { .daynight-compare { grid-template-columns: 1fr; } }
+  .daynight-slot {
+    border-radius: 4px; overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: border-color 0.3s;
+  }
+  .daynight-slot.day { border-color: rgba(245,201,122,0.2); }
+  .daynight-slot.night { border-color: rgba(126,184,247,0.2); }
+  .daynight-slot:hover { border-color: rgba(245,201,122,0.45); }
+  .daynight-slot.night:hover { border-color: rgba(126,184,247,0.45); }
+  .daynight-slot img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; }
+  .daynight-label { padding: 12px 16px; display: flex; align-items: center; gap: 8px; }
+  .daynight-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .daynight-slot.day .daynight-dot { background: var(--warm); box-shadow: 0 0 8px rgba(245,201,122,0.6); }
+  .daynight-slot.night .daynight-dot { background: var(--glow); box-shadow: 0 0 8px rgba(126,184,247,0.6); }
+  .daynight-slot .daynight-label span { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text); letter-spacing: 0.1em; }
+
+  /* Version image grid — equal size */
+  .version-img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+  .version-img-grid .img-block { border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+  .version-img-grid .img-block img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; }
+
+  /* Design pillars */
+  .pillar-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+  @media (max-width: 600px) { .pillar-row { grid-template-columns: 1fr; } }
+  .pillar {
+    text-align: center; padding: 40px 24px;
+    border: 1px solid var(--border); border-radius: 4px;
+    background: var(--surface);
+  }
+  .pillar-word { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-style: italic; color: var(--accent); display: block; margin-bottom: 8px; }
+  .pillar-vs { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
+
+  footer { border-top: 1px solid var(--border); padding: 48px 0; text-align: center; }
+  footer p { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); margin: 0; }
+  footer a { color: var(--glow); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 600px) {
+    nav .wrap { flex-direction: column; align-items: flex-start; }
+    .nav-links { gap: 16px; }
+  }
+
+  .img-caption {
+    padding: 12px 20px; background: var(--surface);
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    color: var(--muted); letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="wrap">
+    <a href="#" class="nav-logo">Sensory Studio</a>
+    <div class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#stations">Stations</a>
+      <a href="#versions">Versions</a>
+      <a href="#design">Design</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="wrap">
+  <div class="hero reveal">
+    <div class="hero-label">XR Museum Experience</div>
+    <h1>Sensory<br><em>Studio</em></h1>
+    <p class="hero-desc">An immersive VR museum designed to encourage users to slow down, explore, and engage with sensory-based interactions — reinforcing mindfulness through presence, not instruction.</p>
+    <div class="cta-row">
+      <a href="https://github.com/Jkr81/CIM423-Project-1" class="btn btn-primary" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub Repository
+      </a>
+      <a href="Museum.apk" class="btn btn-secondary" target="_blank">
+        ↓ Download APK (Meta Quest)
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="wrap" id="overview">
+  <hr class="divider">
+  <section class="reveal">
+    <div class="section-tag">// Project Overview</div>
+    <h2>What is Sensory Studio?</h2>
+    <p>Sensory Studio is a VR/XR interactive museum built in Unity for the Meta Quest platform. The experience guides users through a curated space where each station activates a distinct auditory response — using environment rather than UI to communicate intent.</p>
+    <p>The project explores how <strong>environmental storytelling</strong> and <strong>tactile interaction</strong> can shape emotional awareness in immersive media. There is no leaderboard. No timer. No failure state. Only the space, and your curiosity.</p>
+
+    <div style="margin: 48px 0; border-radius:4px; overflow:hidden; border:1px solid var(--border);">
+      <img src="overview.jpg" alt="Sensory Studio — full room overview" style="width:100%; display:block;">
+      <div class="img-caption">ROOM OVERVIEW — 7 stations arranged around central pool, skylight above</div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🎧</div>
+        <h3>Spatial Audio</h3>
+        <p>Each station emits unique positional sound, drawing users through the environment naturally.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🖐</div>
+        <h3>Physical Interaction</h3>
+        <p>XR Simple Interactable — no menus, no prompts. Your hands do the discovering.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔁</div>
+        <h3>Reflective Loop</h3>
+        <p>Completing all 7 stations resets the experience — inviting re-entry rather than exit.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- VIDEO -->
+<div class="wrap">
+  <hr class="divider">
+  <section class="reveal" id="video">
+    <div class="section-tag">// Experience Preview</div>
+    <h2>See it in Motion</h2>
+    <p>A walkthrough of the full Sensory Studio experience on Meta Quest — from the entrance guide through all seven stations and the glowing sphere.</p>
+    <div class="video-wrap">
+      <video controls>
+        <source src="Transitions.mp4" type="video/mp4">
+      </video>
+    </div>
+  </section>
+</div>
+
+<!-- STATIONS -->
+<div class="wrap" id="stations">
+  <hr class="divider">
+  <section class="reveal">
+    <div class="section-tag">// Interaction Design</div>
+    <h2>7 Sensory Stations</h2>
+    <p>Each station is a framed image mounted on the wall, paired with a white button. Walk up to an image, press the button, and a sound plays that echoes the moment captured in the photograph. When it fades, the room returns to silence.</p>
+
+    <div class="station-grid">
+      <div class="station-card">
+        <span class="station-num">STATION 01</span>
+        <span class="station-emoji">✂️</span>
+        <span class="station-name">Scissors</span>
+        <span class="station-sound">The crisp snip of cutting</span>
+      </div>
+      <div class="station-card">
+        <span class="station-num">STATION 02</span>
+        <span class="station-emoji">🌲</span>
+        <span class="station-name">Pinecone</span>
+        <span class="station-sound">Tapping on a pinecone</span>
+      </div>
+      <div class="station-card">
+        <span class="station-num">STATION 03</span>
+        <span class="station-emoji">🎨</span>
+        <span class="station-name">Paint Brush</span>
+        <span class="station-sound">Soft bristles on canvas</span>
+      </div>
+      <div class="station-card">
+        <span class="station-num">STATION 04</span>
+        <span class="station-emoji">🫧</span>
+        <span class="station-name">Bubbles</span>
+        <span class="station-sound">Gentle pops and fizz</span>
+      </div>
+      <div class="station-card">
+        <span class="station-num">STATION 05</span>
+        <span class="station-emoji">🌊</span>
+        <span class="station-name">Waves</span>
+        <span class="station-sound">Ocean rolling onto shore</span>
+      </div>
+      <div class="station-card">
+        <span class="station-num">STATION 06</span>
+        <span class="station-emoji">🏖️</span>
+        <span class="station-name">Sand</span>
+        <span class="station-sound">Grains shifting underfoot</span>
+      </div>
+      <div class="station-card">
+        <span class="station-num">STATION 07</span>
+        <span class="station-emoji">❄️</span>
+        <span class="station-name">Snow</span>
+        <span class="station-sound">Walking on snow</span>
+      </div>
+    </div>
+
+    <h2 style="margin-top: 56px;">Environment Features</h2>
+    <p>Beyond the seven wall stations, the room contains two ambient interactive elements that respond to presence and touch.</p>
+
+    <div class="special-stations">
+      <div class="special-card sphere">
+        <div class="special-label">✦ Special Object</div>
+        <div class="special-title">Glowing Sphere</div>
+        <p class="special-desc">A luminous sphere at the centre of the room that toggles the entire environment between <strong style="color:var(--warm);">day</strong> and <strong style="color:var(--glow);">night</strong> — shifting the skylight, shadows, and atmosphere with a single touch.</p>
+        <div class="daynight-compare">
+          <div class="daynight-slot day">
+            <img src="day.jpg" alt="Day mode">
+            <div class="daynight-label">
+              <span class="daynight-dot"></span>
+              <span>Day Mode</span>
+            </div>
+          </div>
+          <div class="daynight-slot night">
+            <img src="night.jpg" alt="Night mode">
+            <div class="daynight-label">
+              <span class="daynight-dot"></span>
+              <span>Night Mode</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="special-card pool">
+        <div class="special-label">〰 Ambient Feature</div>
+        <div class="special-title">Water Pool</div>
+        <p class="special-desc">A shallow pool occupies the floor at the room's centre. Walking across its surface triggers spatial water sounds — a subtle reward for physical exploration rather than button presses.</p>
+        <p class="special-desc" style="margin-top:12px;">The pool reinforces the experience's core thesis: <em>the environment responds to you</em>, not the other way around.</p>
+      </div>
+    </div>
+
+    <h2 style="margin-top:56px;">Progression Logic</h2>
+    <p>The exit door acts as a soft gate. It listens — not to lock you out, but to ask if you've truly arrived.</p>
+
+    <table class="interaction-table">
+      <thead>
+        <tr><th>User Action</th><th>System Response</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Approaches a station</td><td>Framed image visible on wall with paired white button</td></tr>
+        <tr><td>Presses the button</td><td>Sound plays — echoing the moment captured in the image</td></tr>
+        <tr><td>Walks over the water pool</td><td>Spatial water sounds triggered underfoot</td></tr>
+        <tr><td>Touches the glowing sphere</td><td>Environment toggles between day and night lighting</td></tr>
+        <tr><td>Sound finishes</td><td>Room returns to silence; station marked complete</td></tr>
+        <tr><td>Attempts to exit early</td><td>"You cannot leave… until you have interacted with all seven experiences."</td></tr>
+        <tr><td>Completes all 7 stations</td><td>Experience marked complete; exit unlocked</td></tr>
+        <tr><td>Exits after completion</td><td>Scene resets via SceneManager reload</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top: 40px;">Technical Stack</h3>
+    <div class="tech-row">
+      <span class="tech-pill">Unity</span>
+      <span class="tech-pill">XR Interaction Toolkit</span>
+      <span class="tech-pill">Meta Quest (Android)</span>
+      <span class="tech-pill">Spatial Audio</span>
+      <span class="tech-pill">SceneManager</span>
+      <span class="tech-pill">XR Simple Interactable</span>
+      <span class="tech-pill">XR Origin</span>
+      <span class="tech-pill">Lighting / Skybox Toggle</span>
+      <span class="tech-pill">Trigger Volumes</span>
+    </div>
+  </section>
+</div>
+
+<!-- VERSIONS -->
+<div class="wrap" id="versions">
+  <hr class="divider">
+  <section class="reveal">
+    <div class="section-tag">// Development Walkthrough</div>
+    <h2>Version History</h2>
+
+    <div class="version-block">
+      <div class="version-header">
+        <span class="version-badge">v1.0</span>
+        <span class="version-title">Base Interaction Layout</span>
+      </div>
+      <div class="version-body">
+        <h3>Focus</h3>
+        <p>Establishing foundational XR interactability, testing ray and direct interaction modes, and mapping out spatial layout through experimentation.</p>
+        <div class="tag-list">
+          <span class="tag">Interactable Objects</span>
+          <span class="tag">XR Ray Interaction</span>
+          <span class="tag">Sound Triggers</span>
+          <span class="tag">Spatial Layout</span>
+        </div>
+        <h3 style="margin-top:20px;">Challenges</h3>
+        <p>Interactions functioned in isolation but had no connective tissue — users could leave without engaging. The space felt like a sandbox rather than a journey. Progression logic was entirely absent.</p>
+
+        <div style="margin-top:24px; border-radius:4px; overflow:hidden; border:1px solid var(--border);">
+          <img src="iScreen_Shoter_-_Unity_-_260203124454.jpg" alt="Version 1 — early interaction test" style="width:100%; display:block;">
+          <div class="img-caption">V1 — Standalone panel interaction test, no progression tracking</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="version-block">
+      <div class="version-header">
+        <span class="version-badge" style="background:var(--accent); color:var(--bg);">v2.0</span>
+        <span class="version-title">Progression + Instructional Feedback</span>
+      </div>
+      <div class="version-body">
+        <h3>Additions</h3>
+        <p>Introduced the 7-interaction tracking system, conditional exit logic, voice feedback for incomplete progress, and a full scene reset loop. The water pool and glowing sphere were added as ambient environment features — rewarding curiosity outside the main station loop.</p>
+        <div class="tag-list">
+          <span class="tag">Counter System</span>
+          <span class="tag">Conditional Audio</span>
+          <span class="tag">Exit Gating</span>
+          <span class="tag">Scene Reset</span>
+          <span class="tag">Player Repositioning</span>
+          <span class="tag">Day/Night Toggle</span>
+          <span class="tag">Water Trigger Volume</span>
+        </div>
+        <h3 style="margin-top:20px;">Design Shift</h3>
+        <p>The project transitioned from a <em>"sandbox of buttons"</em> to a <strong>guided sensory journey</strong>. Every system change was made in service of that shift — presence over challenge, exploration over instruction.</p>
+
+        <div class="version-img-grid">
+          <div class="img-block">
+            <img src="oldPanel.jpg" alt="Old navigation panel">
+            <div class="img-caption">V1 — Original navigation panel</div>
+          </div>
+          <div class="img-block">
+            <img src="iScreen_Shoter_-_Safari_-_260215174856.jpg" alt="Updated guide with controller layout">
+            <div class="img-caption">V2 — Updated guide with controller layout</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- DESIGN INTENT -->
+<div class="wrap" id="design">
+  <hr class="divider">
+  <section class="reveal">
+    <div class="section-tag">// Design Philosophy</div>
+    <h2>Presence Over Challenge</h2>
+    <p>Sensory Studio was built on a deliberate rejection of traditional game loops. Rather than gamifying the space, every design decision serves one purpose: to make the user feel <em>here</em>.</p>
+
+    <div class="pillar-row">
+      <div class="pillar">
+        <span class="pillar-word">Presence</span>
+        <span class="pillar-vs">over challenge</span>
+      </div>
+      <div class="pillar">
+        <span class="pillar-word">Interaction</span>
+        <span class="pillar-vs">over instruction</span>
+      </div>
+      <div class="pillar">
+        <span class="pillar-word">Reflection</span>
+        <span class="pillar-vs">over reward</span>
+      </div>
+    </div>
+
+    <p style="margin-top: 40px;">The experience demonstrates how XR can create <strong>experiential storytelling without narrative dialogue</strong> — using sound, space, and participation as its only language.</p>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <p>Sensory Studio &nbsp;·&nbsp; XR Coursework &nbsp;·&nbsp; <a href="https://github.com/Jkr81/CIM423-Project-1" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="Museum.apk" target="_blank">Download APK</a></p>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
