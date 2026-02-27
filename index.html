@@ -204,12 +204,53 @@
     border: 1px solid var(--border); color: var(--text); background: var(--surface);
   }
 
-  /* Video */
-  .video-wrap {
+  /* ── Video Embed ── */
+  .video-embed-wrap {
     margin: 32px 0; border-radius: 4px; overflow: hidden;
     border: 1px solid var(--border);
+    aspect-ratio: 16/9; background: #000;
+    transition: border-color 0.3s, box-shadow 0.3s;
   }
-  .video-wrap video { width: 100%; display: block; }
+  .video-embed-wrap iframe {
+    width: 100%; height: 100%; display: block; border: 0;
+  }
+  .video-thumb {
+    position: relative; width: 100%; height: 100%; cursor: pointer;
+    transition: transform 0.3s;
+  }
+  .video-thumb:hover { transform: none; }
+  .video-embed-wrap:hover { border-color: rgba(126,184,247,0.4); box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+  .video-thumb img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: opacity 0.3s, transform 0.4s;
+  }
+  .video-thumb:hover img { opacity: 0.7; transform: scale(1.02); }
+  .video-play-btn {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.3s;
+    filter: drop-shadow(0 4px 20px rgba(0,0,0,0.7));
+    pointer-events: none;
+  }
+  .video-thumb:hover .video-play-btn { transform: translate(-50%, -50%) scale(1.15); }
+  .video-thumb-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(6,8,16,0.7) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .video-thumb-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 16px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    transition: color 0.3s;
+    display: flex; align-items: center; justify-content: space-between;
+    pointer-events: none;
+  }
+  .video-thumb:hover .video-thumb-label { color: var(--glow); }
+  .video-thumb-label .vt-right { font-size: 10px; color: var(--muted); }
+  .video-thumb:hover .video-thumb-label .vt-right { color: var(--glow); }
 
   /* Day/Night */
   .daynight-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0 0; }
@@ -231,19 +272,16 @@
   .daynight-slot.night .daynight-dot { background: var(--glow); box-shadow: 0 0 8px rgba(126,184,247,0.6); }
   .daynight-slot .daynight-label span { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text); letter-spacing: 0.1em; }
 
-  /* Version image grid — equal size */
   .version-img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
   .version-img-grid .img-block { border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
   .version-img-grid .img-block img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; }
 
-  /* Pool image */
   .pool-img {
     width: 100%; display: block; border-radius: 4px;
     margin: 14px 0 16px;
     border: 1px solid rgba(126,184,247,0.15);
   }
 
-  /* Design pillars */
   .pillar-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
   @media (max-width: 600px) { .pillar-row { grid-template-columns: 1fr; } }
   .pillar {
@@ -280,7 +318,6 @@
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>
 
-<!-- NAV -->
 <nav>
   <div class="wrap">
     <a href="#" class="nav-logo">Sensory Studio</a>
@@ -293,7 +330,6 @@
   </div>
 </nav>
 
-<!-- HERO -->
 <div class="wrap">
   <div class="hero reveal">
     <div class="hero-label">XR Museum Experience</div>
@@ -311,7 +347,6 @@
   </div>
 </div>
 
-<!-- OVERVIEW -->
 <div class="wrap" id="overview">
   <hr class="divider">
   <section class="reveal">
@@ -345,26 +380,33 @@
   </section>
 </div>
 
-<!-- VIDEO -->
 <div class="wrap">
   <hr class="divider">
   <section class="reveal" id="video">
     <div class="section-tag">// Experience Preview</div>
     <h2>See it in Motion</h2>
     <p>A walkthrough of the full Sensory Studio experience on Meta Quest — from the entrance guide through all seven stations and the glowing sphere.</p>
-    <div class="video-wrap">
-      <iframe width="100%" style="aspect-ratio:16/9; display:block; border:0;"
-        src="https://www.youtube.com/embed/If9K8whijoA?si=J6YRODk8TA21qAyX"
-        title="YouTube video player"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerpolicy="strict-origin-when-cross-origin"
-        allowfullscreen>
-      </iframe>
+
+    <div class="video-embed-wrap" id="videoWrap">
+      <div class="video-thumb" id="videoThumb" onclick="loadVideo()">
+        <img src="https://img.youtube.com/vi/If9K8whijoA/maxresdefault.jpg" alt="Sensory Studio — Experience Walkthrough">
+        <div class="video-thumb-overlay"></div>
+        <div class="video-play-btn">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="36" cy="36" r="36" fill="rgba(0,0,0,0.55)"/>
+            <circle cx="36" cy="36" r="35" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+            <polygon points="29,22 29,50 54,36" fill="white"/>
+          </svg>
+        </div>
+        <div class="video-thumb-label">
+          <span>▶&nbsp;&nbsp;Watch Full Walkthrough</span>
+          <span class="vt-right">Click to play</span>
+        </div>
+      </div>
     </div>
   </section>
 </div>
 
-<!-- STATIONS -->
 <div class="wrap" id="stations">
   <hr class="divider">
   <section class="reveal">
@@ -421,8 +463,6 @@
     <p>Beyond the seven wall stations, the room contains two ambient interactive elements that respond to presence and touch.</p>
 
     <div class="special-stations">
-
-      <!-- Glowing Sphere -->
       <div class="special-card sphere">
         <div class="special-label">✦ Special Object</div>
         <div class="special-title">Glowing Sphere</div>
@@ -445,7 +485,6 @@
         </div>
       </div>
 
-      <!-- Water Pool -->
       <div class="special-card pool">
         <div class="special-label">〰 Ambient Feature</div>
         <div class="special-title">Water Pool</div>
@@ -453,7 +492,6 @@
         <p class="special-desc">A shallow pool occupies the floor at the room's centre. Walking across its surface triggers spatial water sounds — a subtle reward for physical exploration rather than button presses.</p>
         <p class="special-desc" style="margin-top:12px;">The pool reinforces the experience's core thesis: <em>the environment responds to you</em>, not the other way around.</p>
       </div>
-
     </div>
 
     <h2 style="margin-top:56px;">Progression Logic</h2>
@@ -490,7 +528,6 @@
   </section>
 </div>
 
-<!-- VERSIONS -->
 <div class="wrap" id="versions">
   <hr class="divider">
   <section class="reveal">
@@ -513,7 +550,6 @@
         </div>
         <h3 style="margin-top:20px;">Challenges</h3>
         <p>Interactions functioned in isolation but had no connective tissue — users could leave without engaging. The space felt like a sandbox rather than a journey. Progression logic was entirely absent.</p>
-
         <div style="margin-top:24px; border-radius:4px; overflow:hidden; border:1px solid var(--border);">
           <img src="iScreen_Shoter_-_Unity_-_260203124454.jpg" alt="Version 1 — early interaction test" style="width:100%; display:block;">
           <div class="img-caption">V1 — Standalone panel interaction test, no progression tracking</div>
@@ -540,7 +576,6 @@
         </div>
         <h3 style="margin-top:20px;">Design Shift</h3>
         <p>The project transitioned from a <em>"sandbox of buttons"</em> to a <strong>guided sensory journey</strong>. Every system change was made in service of that shift — presence over challenge, exploration over instruction.</p>
-
         <div class="version-img-grid">
           <div class="img-block">
             <img src="oldPanel.jpg" alt="Old navigation panel">
@@ -556,7 +591,6 @@
   </section>
 </div>
 
-<!-- DESIGN INTENT -->
 <div class="wrap" id="design">
   <hr class="divider">
   <section class="reveal">
@@ -583,7 +617,6 @@
   </section>
 </div>
 
-<!-- FOOTER -->
 <footer>
   <div class="wrap">
     <p>Sensory Studio &nbsp;·&nbsp; XR Coursework &nbsp;·&nbsp; <a href="https://github.com/Jkr81/CIM423-Project-1" target="_blank">GitHub</a> &nbsp;·&nbsp; <a href="https://github.com/Jkr81/Sensory-Studio-Documentation/releases/download/v1.0/Museum.apk" target="_blank">Download APK</a></p>
@@ -591,6 +624,17 @@
 </footer>
 
 <script>
+  function loadVideo() {
+    const wrap = document.getElementById('videoWrap');
+    const iframe = document.createElement('iframe');
+    iframe.src = 'https://www.youtube.com/embed/If9K8whijoA?autoplay=1&rel=0';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allowFullscreen = true;
+    iframe.style.cssText = 'width:100%;height:100%;display:block;border:0;';
+    wrap.innerHTML = '';
+    wrap.appendChild(iframe);
+  }
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1 });
