@@ -236,6 +236,13 @@
   .version-img-grid .img-block { border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
   .version-img-grid .img-block img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; }
 
+  /* Pool image */
+  .pool-img {
+    width: 100%; display: block; border-radius: 4px;
+    margin: 14px 0 16px;
+    border: 1px solid rgba(126,184,247,0.15);
+  }
+
   /* Design pillars */
   .pillar-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
   @media (max-width: 600px) { .pillar-row { grid-template-columns: 1fr; } }
@@ -346,11 +353,14 @@
     <h2>See it in Motion</h2>
     <p>A walkthrough of the full Sensory Studio experience on Meta Quest — from the entrance guide through all seven stations and the glowing sphere.</p>
     <div class="video-wrap">
-  <iframe width="100%" style="aspect-ratio:16/9; display:block; border:0;"
-    src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
-    allowfullscreen>
-  </iframe>
-</div>
+      <iframe width="100%" style="aspect-ratio:16/9; display:block; border:0;"
+        src="https://www.youtube.com/embed/If9K8whijoA?si=J6YRODk8TA21qAyX"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+      </iframe>
+    </div>
   </section>
 </div>
 
@@ -411,6 +421,8 @@
     <p>Beyond the seven wall stations, the room contains two ambient interactive elements that respond to presence and touch.</p>
 
     <div class="special-stations">
+
+      <!-- Glowing Sphere -->
       <div class="special-card sphere">
         <div class="special-label">✦ Special Object</div>
         <div class="special-title">Glowing Sphere</div>
@@ -433,12 +445,15 @@
         </div>
       </div>
 
+      <!-- Water Pool -->
       <div class="special-card pool">
         <div class="special-label">〰 Ambient Feature</div>
         <div class="special-title">Water Pool</div>
+        <img src="water.jpg" alt="Water pool — central feature of Sensory Studio" class="pool-img">
         <p class="special-desc">A shallow pool occupies the floor at the room's centre. Walking across its surface triggers spatial water sounds — a subtle reward for physical exploration rather than button presses.</p>
         <p class="special-desc" style="margin-top:12px;">The pool reinforces the experience's core thesis: <em>the environment responds to you</em>, not the other way around.</p>
       </div>
+
     </div>
 
     <h2 style="margin-top:56px;">Progression Logic</h2>
